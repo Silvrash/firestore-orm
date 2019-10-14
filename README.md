@@ -7,8 +7,8 @@ An ORM for firestore.
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
 ### Prerequisites
-* [Python 2.7]
-* [Python 3.x]
+* [Python 2.7](https://www.python.org/downloads/)
+* [Python 3.x](https://www.python.org/downloads/)
 
 ### Installing
 ```
