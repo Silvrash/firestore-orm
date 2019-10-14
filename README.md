@@ -22,7 +22,7 @@ Please read [CONTRIBUTING.md](https://gist.github.com/Silvrash/b24679402957c63ec
 ## Versioning
 
 
-## Authors
+## Author
 
 * **Benjamin Arko Afrasah**- [Silvrash](https://github.com/Silvrash)
 
