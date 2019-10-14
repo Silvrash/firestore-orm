@@ -27,7 +27,3 @@ Please read [CONTRIBUTING.md](https://gist.github.com/Silvrash/b24679402957c63ec
 * **Benjamin Arko Afrasah**- [Silvrash](https://github.com/Silvrash)
 
 See also the list of [contributors](https://github.com/Silvrash/firestorm/contributors) who participated in this project.
-
-## License
-
-This project is licensed under the Apache 2.0 License - see the [LICENSE.md](LICENSE.md) file for details
