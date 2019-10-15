@@ -1,3 +1,5 @@
+from jsonmodels.fields import StringField
+
 __author__ = 'Benjamin Arko Afrasah'
 
 import uuid
@@ -22,7 +24,7 @@ class ModelMeta(JsonmodelMeta):
                 name=firebase_admin.get_app().options.get('storageBucket')),
         )
         partials = ['get', 'fetch']
-        for attr in query.__dir__():
+        for attr in dir(query):
             if callable(getattr(query, attr)) and attr in partials:
                 func = getattr(query, attr)
                 func = partial(func, model=new_class)
@@ -123,7 +125,7 @@ class Model(Base):
     show_relationships = []
 
     __tablename__ = None
-    id = fields.StringField()
+    id = fields.StringField()  # type: StringField
     created_at = fields.DateTimeField()
 
     def __init__(self, *args, **kwargs):
@@ -131,10 +133,11 @@ class Model(Base):
         self.id = uuid.uuid4().__str__() if not self.id else self.id
 
     def save(self):
+        # type: () -> bool
         """Save model instance to firestore
         """
 
-        self.query.commit(self.id, self)
+        return self.query.commit(self.id, self)
 
     @classmethod
     def __call__(cls, *args, **kw):
@@ -177,3 +180,6 @@ class Model(Base):
                 continue
             resp[key] = val.to_dict()
         return resp
+
+    def delete(self):
+        return self.query.delete(self)

@@ -1,16 +1,18 @@
 __author__ = 'Benjamin Arko Afrasah'
 
+import sys
 from datetime import datetime
 
 from google.cloud import firestore
 from google.cloud.firestore_v1beta1 import CollectionReference, DocumentReference, DocumentSnapshot
-from typing import List, Tuple, Any, Optional
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from google.cloud.firestore import Client
-    from google.cloud.storage import Bucket
-    from .model import Model
+if not sys.version_info[0] == 2:
+    from typing import List, Tuple, Any, Optional, TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from google.cloud.firestore import Client
+        from google.cloud.storage import Bucket
+        from .model import Model
 
 
 class FirestoreORM:
@@ -39,7 +41,6 @@ class FirestoreORM:
         Returns:
             :class: `google.cloud.firestore_v1beta1.CollectionReference` -- firestore collection object
         """
-
         return self.db.collection(model.__tablename__)
 
     def _get_document(self, id, model):
@@ -49,11 +50,10 @@ class FirestoreORM:
         Returns:
             :class: `google.cloud.firestore_v1beta1.DocumentReference` -- Firestore document object
         """
-
         return self._get_ref(model).document(id)
 
     def commit(self, id, model):
-        # type: (str, Model) -> None
+        # type: (str, Model) -> bool
         """Save data to firestore
 
         Arguments:
@@ -66,6 +66,7 @@ class FirestoreORM:
         model.validate()
         doc_ref = self._get_document(id=id, model=model)
         doc_ref.set(model.to_struct())
+        return True
 
     def get(self, id, model):
         # type: (str, Model) -> Model
@@ -168,3 +169,10 @@ class FirestoreORM:
             kwargs[key] = document.get(key)
 
         return model(**kwargs)
+
+    def delete(self, model):
+        # type: (Model) -> bool
+        """Delete a document
+        """
+        self._get_document(model.id, model).delete()
+        return True

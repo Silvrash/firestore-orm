@@ -1,109 +1,58 @@
-import pytest
-import atexit
-from . import Users, Settings
-# import json
+# Copyright 2019 Benjamin Arko Afrasah
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-user_fields = {
-    'first_name': 'Testy',
-    'surname': 'Testa',
-    'email': 'barkoafrasah@gmail.com',
-    'password': 'jackass',
-}
+import unittest
+
+from testdata.models import Users
 
 
-def pytest_namespace():
-    return {'id': None}
+class TestModel(unittest.TestCase):
 
+    def test_cud(self):
+        user = self.create()
+        self.update(user)
+        self.delete(user.id)
 
-class TestFireStoreOrm(object):
+    @staticmethod
+    def create():
+        # Mock the API response
+        # channel = ChannelStub(responses=[expected_response])
+        # patch = mock.patch("google.api_core.grpc_helpers.create_channel")
+        # with patch as create_channel:
+        #     create_channel.return_value = channel
+        #     client = firestore_client.FirestoreClient()
+        user = Users(first_name='Chuck', surname='Norris')
+        assert user.save(), 'Could not save user'
+        return user
 
-    def test_add_user_model(self):
+    @staticmethod
+    def update(user):
+        # type: (Users) -> Users
 
-        new_user: Users = Users(**user_fields)
-        settings = self.add_settings({'user_id': new_user.id})
-        new_user.settings_id = settings.id
-        new_user.save()
-        assert isinstance(new_user.id, str)
-        pytest.id = new_user.id
-        # self.report(
-        #     'test_add_user_model', json.dumps(new_user.to_struct(), indent=1))
+        new_first_name = 'Chukky'
+        user.populate(first_name=new_first_name)
 
-    def add_settings(self, kwargs):
-        settings = Settings(**kwargs)
-        settings.save()
-        return settings
+        assert user.first_name == new_first_name, 'Failed to update property'
+        assert user.save(), 'Failed to update model'
 
-    def test_get_single_user(self):
-        user = Users.query.get(pytest.id)
+        user = Users.query.get(user.id)
+        assert user.first_name == new_first_name, 'Property does not match updated value'
+        return user
 
-        assert isinstance(user, Users)
-        # self.report(
-        #     'test_get_single_user', json.dumps(user.to_struct(), indent=1))
+    @staticmethod
+    def delete(user_id):
+        # type: (str) -> None
 
-    def test_fetch_user(self):
-        user = Users.query.fetch(
-            filters=[('is_deleted', '==', False), ('id', '==', pytest.id)], single=True)
-        assert isinstance(user, Users)
-        assert not user.is_deleted
-        # self.report('test_fetch_user', json.dumps(user.to_struct(), indent=1))
-
-    def test_get_multiple_users(self):
-        users = Users.query.fetch(to_dict=True)
-
-        assert isinstance(users, list)
-
-        # self.report(
-        #     'test_get_multiple_users', json.dumps(users, indent=1))
-
-    def test_update_user(self):
-        fields = {
-            'first_name': 'Testaff',
-            'surname': 'Testa_zzz',
-        }
-        user: Users = Users.query.get(pytest.id)
-        user.populate(**fields)
-        user.save()
-        assert user.first_name != user_fields['first_name']
-        assert user.surname != user_fields['surname']
-
-        # self.report(
-        #     'test_update_user', json.dumps(user.to_struct(), indent=1))
-
-    def test_delete_user(self):
-        user = Users.query.get(pytest.id)
-        user.is_deleted = True
-        user.save()
-        assert user.is_deleted
-
-    def test_query_filters(self):
-        users = Users.query.fetch(
-            filters=[('email', '==', user_fields['email'])], to_dict=True)
-
-        assert isinstance(users, list)
-
-        # self.report('test_query_filters', json.dumps(users, indent=1))
-
-    def test_query_filter_single(self):
-        user = Users.query.fetch(
-            filters=[('email', '==', user_fields['email'])], single=True)
-
-        assert isinstance(user, Users)
-        assert user.email
-
-        # self.report('test_query_filter_single',
-        #             json.dumps(user.to_struct(), indent=1))
-
-    def test_relationship(self):
-        user = Users.query.get(pytest.id)
-
-        assert isinstance(user, Users)
-        assert isinstance(user.settings, Settings)
-
-        # self.report('test_relationship', json.dumps(
-        #     user.settings.to_struct(), indent=1))
-
-    def test_users_add_embedded_field(self):
-        pass
-
-    def report(self, func, *args):
-        atexit.register(lambda: print('Output - ', func + ':--> ', *args))
+        user = Users.query.get(user_id)
+        assert user.delete(), 'Failed to delete'

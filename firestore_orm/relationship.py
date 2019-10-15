@@ -4,8 +4,8 @@ import firebase_admin
 from firebase_admin import firestore
 from firebase_admin import storage
 
-from firestorm.base import FirestoreORM
-from firestorm.model import Model
+from firestore_orm.base import FirestoreORM
+from firestore_orm.model import Model
 
 
 def relationship(model, foreign_model, key, uselist=False):
@@ -26,4 +26,5 @@ def relationship(model, foreign_model, key, uselist=False):
         db=firestore.client(),
         bucket=storage.bucket(name=firebase_admin.get_app().options.get('storageBucket')),
     )
-    return query.get(id=id, model=foreign_model) if not uselist else query.all(foreign_model, filters={'id': id})
+    return query.get(id=id, model=foreign_model) if not uselist else query.fetch(foreign_model,
+                                                                                 filters=[('id', '==', id)])

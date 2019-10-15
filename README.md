@@ -1,13 +1,13 @@
-# Firestorm - A Firestore ORMA
+# A Firestore ORM
 
-Firestorm is a module that adds support for firestore
+Firestore ORM is a module that adds support for firestore
 Object Relational Mapping to your application.
 It requires firebase-admin 2.16.0 or higher.
 It aims to simplify using Firestore collections as Objects by providing useful
 defaults and extra helpers that make it easier to accomplish common tasks.
 
 # Overview
-Firestorm provides the following key features:
+Firestore ORM provides the following key features:
 
   - Object Models - create your models in the form of python Objects.
   - Queries - perform firestore queries easily.
@@ -16,22 +16,22 @@ Firestorm provides the following key features:
 
 ## Usage
 
-In the following paragraphs, I am going to describe how you can get and use Firestorm for your own projects.
+In the following paragraphs, I am going to describe how you can get and use Firestore ORM for your own projects.
 
 ###  Getting it
 
-To download firestorm, either fork this github repo or simply use Pypi via pip.
+To download Firestore ORM, either fork this github repo or simply use Pypi via pip.
 ```sh
-$ pip install firestorm
+$ pip install firestore_orm
 ```
 
-### Using it
+### Creating Models
 
 Scrapeasy was programmed with ease-of-use in mind. First, import Website and Page from Scrapeasy
 
 ```Python
 from jsonmodels import fields
-from firestorm import model, relationship
+from firestore_orm import model, relationship
 
 class Pet(model.Model):
     __tablename__ = 'pet'
@@ -51,26 +51,65 @@ class Person(model.Model):
         self.pet = relationship(self, Pet, 'pet_id')
 ```
 
-And you are ready to go!
+### Operations
 
-MIT License
+```Python
+
+pet = Pet(name='Katty')
+pet.id # >>> '26b353d6-f5a1-4a38-b61a-b9371de5b92f'
+
+pet.save()  # save to firestore
+
+person = Person(name='Chuck', pet_id=pet.id)
+person.name # >>> 'Chuck'
+person.surname # >>> None
+
+person.populate(surname='Norris', age=20)
+person.surname # >>> 'Norris'
+person.name # >>> 'Chuck'
+person.id # >>> '1286f8ae-710f-4fb7-a804-31fbed525390'
+
+person.save()   # save to firestore
+
+Person.query.fetch() 
+# >>> [Person(created_at=datetime.datetime(2019, 3, 24, 13, 57, 21, 761746), name='Chuck', surname='Norris', age=20, pet_id='26b353d6-f5a1-4a38-b61a-b9371de5b92f', id='1286f8ae-710f-4fb7-a804-31fbed525390')]
+
+Person.query.get('1286f8ae-710f-4fb7-a804-31fbed525390') 
+# >>> Person(created_at=datetime.datetime(2019, 3, 24, 13, 57, 21, 761746), name='Chuck', surname='Norris', age=20, pet_id='26b353d6-f5a1-4a38-b61a-b9371de5b92f', id='1286f8ae-710f-4fb7-a804-31fbed525390')
+
+person = Person.query.get('1286f8ae-710f-4fb7-a804-31fbed525390')
+person.pet
+# >>> 'Pet(created_at=datetime.datetime(2019, 3, 24, 13, 57, 21, 761746), name='Katty', id='26b353d6-f5a1-4a38-b61a-b9371de5b92f')'
+```
+# Filter
+You can filter the results of a query using the following functions
+
+```python
+
+Person.query.fetch(filters=[('name', '==', 'Chuck'), ('age', '<=', 20)])
+# >>> [Person(created_at=datetime.datetime(2019, 3, 24, 13, 57, 21, 761746), name='Chuck', surname='Norris', age=20, pet_id='26b353d6-f5a1-4a38-b61a-b9371de5b92f', id='1286f8ae-710f-4fb7-a804-31fbed525390')]
+```
+# Order by
+You can also order the results of a query
+
+```python
+Person.query.fetch(order_by={"population": 'DESCENDING'})  # orders query by DESCENDING order: set to `ASCENDING` for ascending order
+``` 
+
+And you are ready to go!
 
 Copyright (c) 2019 Benjamin Arko Afrasah
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+   http://www.apache.org/licenses/LICENSE-2.0
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+
