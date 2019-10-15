@@ -27,8 +27,6 @@ $ pip install firestore_orm
 
 ### Creating Models
 
-Scrapeasy was programmed with ease-of-use in mind. First, import Website and Page from Scrapeasy
-
 ```Python
 from jsonmodels import fields
 from firestore_orm import model, relationship
@@ -84,15 +82,14 @@ person.pet
 # Filter
 You can filter the results of a query using the following functions
 
-```python
-
+```Python
 Person.query.fetch(filters=[('name', '==', 'Chuck'), ('age', '<=', 20)])
 # >>> [Person(created_at=datetime.datetime(2019, 3, 24, 13, 57, 21, 761746), name='Chuck', surname='Norris', age=20, pet_id='26b353d6-f5a1-4a38-b61a-b9371de5b92f', id='1286f8ae-710f-4fb7-a804-31fbed525390')]
 ```
 # Order by
 You can also order the results of a query
 
-```python
+```Python
 Person.query.fetch(order_by={"population": 'DESCENDING'})  # orders query by DESCENDING order: set to `ASCENDING` for ascending order
 ``` 
 
